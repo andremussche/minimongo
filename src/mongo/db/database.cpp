@@ -392,6 +392,23 @@ namespace mongo {
         return getFile(n-1);
     }
 
+	//AM
+    int Database::getSmallestUnusedLength(int sizeNeeded)  
+	{ 
+		int ilength = 0;
+        // check existing files
+        for ( int i=numFiles()-1; i>=0; i-- ) {
+            MongoDataFile* f = getFile( i );
+            if ( f->getHeader()->unusedLength >= sizeNeeded ) 
+			{
+				if ( (ilength == 0) ||
+					 ( f->getHeader()->unusedLength < ilength ) )
+                  ilength = f->getHeader()->unusedLength;
+            }
+        }
+		return ilength;
+	}
+
 
     Extent* Database::allocExtent( const char *ns, int size, bool capped, bool enforceQuota ) {
         // todo: when profiling, these may be worth logging into profile collection

@@ -89,6 +89,9 @@ namespace mongo {
 
         Extent* allocExtent( const char *ns, int size, bool capped, bool enforceQuota );
 
+		//AM
+        int Database::getSmallestUnusedLength(int sizeNeeded); 
+
         MongoDataFile* newestFile();
 
         /**

@@ -422,7 +422,9 @@ namespace mongo {
         else
             size = 0x7ff00000;
         if ( cmdLine.smallfiles ) {
-            size = size >> 2;
+			//AM 
+			//size = size >> 2;
+            size = size >> 6;    //64mb -> 1mb
         }
         return size;
     }
@@ -1247,6 +1249,16 @@ namespace mongo {
         int x = initialSize(len);
         // changed from 1.20 to 1.35 in v2.1.x to get to larger extent size faster
         int y = (int) (lastExtentLen < 4000000 ? lastExtentLen * 4.0 : lastExtentLen * 1.35);
+
+		//AM, after 100kb smaller increase? because extents are used for a couple of things, it increases very fast?
+		//e.g. a small expand for an index or namespace results in very large new extent, which can be a big waste 
+        if ( cmdLine.smallfiles ) 
+		{
+          y = (int) (lastExtentLen < 100000 ? lastExtentLen * 2.0 : lastExtentLen * 1.2);
+		  if (y > 100 * 1024)
+            y = 100 * 1024;  //small steps of 100kb, should be enough for small db's
+		}
+
         int sz = y > x ? y : x;
 
         if ( sz < lastExtentLen ) {
@@ -1378,7 +1390,15 @@ namespace mongo {
         DiskLoc loc;
         if ( ! d->isCapped() ) { // size capped doesn't grow
             LOG(1) << "allocating new extent for " << ns << " padding:" << d->paddingFactor() << " lenWHdr: " << lenWHdr << endl;
-            cc().database()->allocExtent(ns, Extent::followupSize(lenWHdr, d->lastExtentSize), false, !god);
+
+			//AM: try to find unused space when needed size fits in, before allocating full new extent
+			int ifreelength = cc().database()->getSmallestUnusedLength(lenWHdr);
+			if ( (ifreelength >= lenWHdr) &&
+			     (ifreelength < Extent::followupSize(lenWHdr, d->lastExtentSize ) ) )
+              cc().database()->allocExtent(ns, ifreelength, false, !god);
+			else
+			//
+              cc().database()->allocExtent(ns, Extent::followupSize(lenWHdr, d->lastExtentSize), false, !god);
             loc = d->alloc(ns, lenWHdr);
             if ( loc.isNull() ) {
                 log() << "warning: alloc() failed after allocating new extent. lenWHdr: " << lenWHdr << " last extent size:" << d->lastExtentSize << "; trying again" << endl;
