@@ -27,11 +27,12 @@
 *.jsall
 *.pyc
 *.log
-*.exe
+*.tlog
+#*.exe
 *.exp
 *.lib
 *.idb
-*.pdb
+#*.pdb
 *.manifest
 *.user
 *.gch
@@ -39,11 +40,12 @@
 *.psess
 *#
 .#*
+*.gitignore
 
 /src/mongo/*/*Debug*/
 /src/mongo/*/*/*Debug*/
-/src/mongo/*/*Release*/
-/src/mongo/*/*/*Release*/
+#/src/mongo/*/*Release*/
+#/src/mongo/*/*/*Release*/
 /src/ipch
 /src/mongo/*/ipch
 /src/mongo/*/*/ipch
