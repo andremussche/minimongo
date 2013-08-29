@@ -35,7 +35,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectName>mongod</ProjectName>
+    <ProjectName>minimongod</ProjectName>
     <ProjectGuid>{215B2D68-0A70-4D10-8E75-B31010C62A91}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>mongod</RootNamespace>
